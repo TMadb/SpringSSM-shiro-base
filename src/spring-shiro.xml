@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+          http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/aop 
+          http://www.springframework.org/schema/aop/spring-aop.xsd
+          http://www.springframework.org/schema/tx 
+          http://www.springframework.org/schema/tx/spring-tx.xsd
+          http://www.springframework.org/schema/context
+          http://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/mvc
+          http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+          
+ 	<!-- shiro的核心配置 -->
+ 	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+ 		<property name="realm" ref="myRealm"></property>
+ 	</bean>
+ 	
+ 	<!-- 定义Realm认证授权规则 -->
+ 	<bean id="myRealm" class="com.woniu.realm.MyRealm" />
+ 	
+ 	<!-- 实际的Shiro核心过滤器，id一定要和web.xml的filtername一致 -->
+ 	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+ 		<!-- 配置安全管理器 -->
+ 		<property name="securityManager" ref="securityManager"/>
+		<!-- 没有认证登录的用户跳转到指定页面 --> 			
+		<property name="loginUrl" value="/login.jsp" />
+		<!-- 未授权的用户，默认的跳转页面 -->
+		<property name="unauthorizedUrl" value="/unauthorized.jsp" />
+		<!-- 配置连接路径：哪些请求需要认证和授权 -->
+		<property name="filterChainDefinitions">
+			<value>
+				<!--  
+					1. 所有请求不需要登录就可以访问，使用匿名访问
+						/** = anon
+					2. 
+					优先级：配置在前面的优先级高。
+				-->
+				/css/** =anon
+				/user/login.do = anon
+				/user/logout.do = logout  <!-- 退出登录，不用写controller -->
+				<!-- 配置访问资源必须用于特定的权限 -->
+				/user/add.do = perms[user:insert1]
+				/user/delete.do = perms[user:delete1]
+				/user/select.do = perms[user:select1]
+				/** = authc  <!-- 拦截除上面意外的所有请求和页面 -->
+			</value>
+		</property>
+ 	</bean>
+</beans>
+
+
+
+
+
